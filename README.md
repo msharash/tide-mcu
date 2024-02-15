@@ -6,4 +6,4 @@ All .ino files that are on TIDE's systems.
 ## LORA
 
 ## Sensors
-- ([Muxing] https://github.com/msharash/TIDE_Arduino/blob/main/mux.ino)https://github.com/msharash/TIDE_Arduino/blob/main/mux.ino)
+- [Muxing](https://github.com/msharash/TIDE_Arduino/blob/main/mux.ino)
