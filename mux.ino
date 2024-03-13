@@ -1,4 +1,5 @@
 #include <CAN.h>
+#include <Arduino.h>
 
 volatile int mux;
 volatile int i = 0;
@@ -24,11 +25,11 @@ void loop() {
   digitalWrite(A11, i & 1);
   digitalWrite(A12, i & (1<<1));
   digitalWrite(A13, i & (1<<2));
-  digitalwrite(A14, i & (1<<3));
+  digitalWrite(A14, i & (1<<3));
   digitalWrite(A15, i & (1<<4));
 
   mux=analogRead(A0);
-  serial.Println(mux);
+  Serial.println(mux);
   
   i++;
 
