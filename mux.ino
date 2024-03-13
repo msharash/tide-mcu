@@ -1,8 +1,15 @@
+#include <CAN.h>
+
 volatile int mux;
 volatile int i = 0;
 
 void setup() {
   // put your setup code here, to run once:
+  if (!CAN.begin(250E3)) {
+    Serial.println("Starting CAN failed!");
+    while (1);
+  }
+
   Serial.begin(115200);
   pinMode(A15,OUTPUT);
   pinMode(A14,OUTPUT);
@@ -28,4 +35,7 @@ void loop() {
   if(i > 31){
     i = 0;
   }
+  CAN.beginExtendedPacket(400000000);
+  CAN.write(mux);
+  CAN.endPacket();
 }
