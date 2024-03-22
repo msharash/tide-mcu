@@ -18,7 +18,7 @@ volatile int16_t M_T, M_Flow;
 //ints: 10
 // undef: 3 
 
-const int NumberofSensors 28 
+const int NumberofSensors=28;
 int i = 0;
 static int result = 0;
 static float fresult = 0;
@@ -121,7 +121,7 @@ void sendCANMessage(int i, void* muxOut) {
     char data[sizeof(val)];                //Create char array
     memcpy(data, &val, sizeof(val));       //Store bytes of val to array
     for(int j = 0; j < sizeof(val); j++){  //Write bytes one by one to CAN
-      CAN.write(data[j], 8, 0);
+      CAN.write(data[j]);
     }
   }else if(i < 25){ //isInt
     int val = *(int *)muxOut;              //Dereference
@@ -129,7 +129,7 @@ void sendCANMessage(int i, void* muxOut) {
     char data[sizeof(val)];                //Create char array
     memcpy(data, &val, sizeof(val));       //Store bytes of val to array
     for(int j = 0; j < sizeof(val); j++){  //Write bytes one by one to CAN
-      CAN.write(data[j], 2, 0);
+      CAN.write(data[j]);
     }
   }else{ //isInt??
     int val = *(int *)muxOut;              //Dereference
@@ -137,7 +137,7 @@ void sendCANMessage(int i, void* muxOut) {
     char data[sizeof(val)];                //Create char array
     memcpy(data, &val, sizeof(val));       //Store bytes of val to array
     for(int j = 0; j < sizeof(val); j++){  //Write bytes one by one to CAN
-      CAN.write(data[j], 8, 0);
+      CAN.write(data[j]);
     }
   }
 
