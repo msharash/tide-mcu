@@ -64,10 +64,10 @@ void setMUXToReadSensor(int i) {
 
 void* readSensorwithVal(int i, int val) {
   if (i < 15) { 
-    fresult = ((float)val/1023*5*2002.9)-14.5; //Scale => [-14.5, 10000]
+    fresult = ((float)val * 5 * 2002.9/1023)-14.5; //Scale => [-14.5, 10000]
     return &fresult;
   }else if(i < 25){ // isInt
-    val = (val/1023 * 5 * 60) - 50;         //Scale => [-50, 200]
+    val = (val * 5 * 60/1023) - 50;         //Scale => [-50, 200]
     return &val;
   }else{
     //scale for flow here
