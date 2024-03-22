@@ -4,5 +4,5 @@
 All .ino files that are on TIDE's systems. 
 
 ## Sensors
-- [Cooling](https://github.com/msharash/TIDE_Arduino/blob/main/mux.ino)
+- [Cooling](https://github.com/msharash/TIDE_Arduino/blob/main/cooling.ino)
 - [Wheel](https://github.com/msharash/TIDE_Arduino/blob/main/wheel.ino)
