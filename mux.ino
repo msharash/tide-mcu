@@ -25,6 +25,8 @@ static float fresult = 0;
 
 void setup() {
   // put your setup code here, to run once:
+  CAN.begin(250E3);
+  
   if (!CAN.begin(250E3)) {
     Serial.println("Starting CAN failed!");
     while (1);
