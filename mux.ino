@@ -18,7 +18,7 @@ volatile int16_t M_T, M_Flow;
 //ints: 10
 // undef: 3 
 
-#define NumberofSensors 28 
+const int NumberofSensors 28 
 int i = 0;
 static int result = 0;
 static float fresult = 0;
