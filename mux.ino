@@ -1,6 +1,7 @@
 #include <CAN.h>
 #include <Arduino.h>
 
+/*
 volatile float BP1_P, BP2_P, BP3_P, BP4_P, BP5_P, BP6_P;
 volatile int16_t BP1_T, BP2_T, BP3_T, BP4_T, BP5_T, BP6_T;
 volatile float BP_P_Supply;
@@ -13,6 +14,7 @@ volatile int16_t IN_Flow;
 volatile float M_P, M_P_Supply;
 volatile int16_t M_T, M_Flow;
 int i = 0;
+*/
 // floats: 15
 //ints: 10
 // undef: 3 
