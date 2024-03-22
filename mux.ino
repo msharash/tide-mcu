@@ -121,7 +121,7 @@ void sendCANMessage(int i, void* muxOut) {
     char data[sizeof(val)];                //Create char array
     memcpy(data, &val, sizeof(val));       //Store bytes of val to array
     for(int j = 0; j < sizeof(val); j++){  //Write bytes one by one to CAN
-      CAN.write(data[j]);
+      CAN.write(data[j], 8, 0);
     }
   }else if(i < 25){ //isInt
     int val = *(int *)muxOut;              //Dereference
@@ -129,7 +129,7 @@ void sendCANMessage(int i, void* muxOut) {
     char data[sizeof(val)];                //Create char array
     memcpy(data, &val, sizeof(val));       //Store bytes of val to array
     for(int j = 0; j < sizeof(val); j++){  //Write bytes one by one to CAN
-      CAN.write(data[j]);
+      CAN.write(data[j], 8, 0);
     }
   }else{ //isInt??
     int val = *(int *)muxOut;              //Dereference
@@ -137,7 +137,7 @@ void sendCANMessage(int i, void* muxOut) {
     char data[sizeof(val)];                //Create char array
     memcpy(data, &val, sizeof(val));       //Store bytes of val to array
     for(int j = 0; j < sizeof(val); j++){  //Write bytes one by one to CAN
-      CAN.write(data[j]);
+      CAN.write(data[j], 8, 0);
     }
   }
 
