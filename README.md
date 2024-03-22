@@ -6,4 +6,5 @@ All .ino files that are on TIDE's systems.
 ## LORA
 
 ## Sensors
-- [Muxing](https://github.com/msharash/TIDE_Arduino/blob/main/mux.ino)
+- [Cooling](https://github.com/msharash/TIDE_Arduino/blob/main/mux.ino)
+- [Wheel](https://github.com/msharash/TIDE_Arduino/blob/main/wheel.ino)
