@@ -13,11 +13,15 @@ volatile int16_t IN_T;
 volatile int16_t IN_Flow;
 volatile float M_P, M_P_Supply;
 volatile int16_t M_T, M_Flow;
-int i = 0;
 */
 // floats: 15
 //ints: 10
 // undef: 3 
+
+#define NumberofSensors 28 
+int i = 0;
+static int result = 0;
+static float fresult = 0;
 
 void setup() {
   // put your setup code here, to run once:
@@ -38,16 +42,16 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   setMUXToReadSensor(i);
+  delay(10);
+  result = analogRead(A0);
   
-  sendCANMessage(i, *readSensor(i));
+  sendCANMessage(i, readSensorwithVal(i,result));
   
   
   i++;
-  if(i > 27){
+  if(i >= NumberofSensors){
     i = 0;
   }
-  
-  delay(100);
 }
 
 void setMUXToReadSensor(int i) {
@@ -58,28 +62,82 @@ void setMUXToReadSensor(int i) {
   digitalWrite(A15, i & (1<<4));
 }
 
-void *readSensor(int i) {
-  int result = analogRead(A0); //0-1023
-  float fresult = 0;
+void* readSensorwithVal(int i, int val) {
   if (i < 15) { 
-    fresult = ((float)result/1023*5*2002.9)-14.5; //-14.5 - 10000
-    return *(float *)fresult;
+    fresult = ((float)val/1023*5*2002.9)-14.5; //Scale => [-14.5, 10000]
+    return &fresult;
   }else if(i < 25){ // isInt
-    result = (result/1023 * 5 * 60) - 50; //-50 - 200
-    return *(int *)result;
+    val = (val/1023 * 5 * 60) - 50;         //Scale => [-50, 200]
+    return &val;
   }else{
     //scale for flow here
-    return *(int *) result;
+    return &val;
   }
 }
 
 /*-----------------------------------------------------
 400000000 - 400000014 is Pressure Sensors
+400000000:  BP_1
+400000001:  BP_2
+400000002:  BP_3
+400000003:  BP_4
+400000004:  BP_5
+400000005:  BP_6
+400000006:  BP_Supply
+400000007:  Exch
+400000008:  Suct
+400000009:  Disch
+400000010:  Inverter_1
+400000011:  Inverter_2
+400000012:  Inverter_Supply
+400000013:  Motor
+400000014:  Motor_Supply
+
 400000015 - 400000024 is Temp Sensor
+400000015: BP_1
+400000016: BP_2
+400000017: BP_3
+400000018: BP_4
+400000019: BP_5
+400000020: BP_6
+400000021: Exch
+400000022: Master
+400000023: Inverter
+400000024: Motor
+
 400000025 - 400000027 is Flow
+400000025: BP
+400000026: Inverter
+400000027: Motor
 -------------------------------------------------------*/
-void sendCANMessage(int i, void *muxOut) {
+void sendCANMessage(int i, void* muxOut) {
   CAN.beginExtendedPacket(400000000+i);
-  CAN.write(mux);
+  
+  if(i < 15){ //isFloat
+    float val = *(float *)muxOut;          //Dereference
+
+    char data[sizeof(val)];                //Create char array
+    memcpy(data, &val, sizeof(val));       //Store bytes of val to array
+    for(int j = 0; j < sizeof(val); j++){  //Write bytes one by one to CAN
+      CAN.write(data[j]);
+    }
+  }else if(i < 25){ //isInt
+    int val = *(int *)muxOut;              //Dereference
+
+    char data[sizeof(val)];                //Create char array
+    memcpy(data, &val, sizeof(val));       //Store bytes of val to array
+    for(int j = 0; j < sizeof(val); j++){  //Write bytes one by one to CAN
+      CAN.write(data[j]);
+    }
+  }else{ //isInt??
+    int val = *(int *)muxOut;              //Dereference
+
+    char data[sizeof(val)];                //Create char array
+    memcpy(data, &val, sizeof(val));       //Store bytes of val to array
+    for(int j = 0; j < sizeof(val); j++){  //Write bytes one by one to CAN
+      CAN.write(data[j]);
+    }
+  }
+
   CAN.endPacket();
 }
