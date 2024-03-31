@@ -1,5 +1,20 @@
-#include <CAN.h>
 #include <Arduino.h>
+#include <SPI.h>
+
+//#define CAN_2515
+#define CAN_2518FD
+
+#if defined(SEEED_WIO_TERMINAL) && defined(CAN_2518FD)
+#else
+// Set SPI CS Pin according to your hardware
+const int SPI_CS_PIN = 9;
+const int CAN_INT_PIN = 2;
+#endif
+
+#ifdef CAN_2518FD
+#include "mcp2518fd_can.h"
+mcp2518fd CAN(SPI_CS_PIN); // Set CS pin
+#endif
 
 /*
 volatile float BP1_P, BP2_P, BP3_P, BP4_P, BP5_P, BP6_P;
@@ -25,14 +40,14 @@ static float fresult = 0;
 
 void setup() {
   // put your setup code here, to run once:
-  CAN.begin(250E3);
-  
-  if (!CAN.begin(250E3)) {
-    Serial.println("Starting CAN failed!");
-    while (1);
-  }
+    SERIAL_PORT_MONITOR.begin(115200);
+    while(!Serial){};
 
-  Serial.begin(115200);
+    while (CAN_OK != CAN.begin(CAN_500KBPS)) {             // init can bus : baudrate = 500k
+        SERIAL_PORT_MONITOR.println("CAN init fail, retry...");
+        delay(100);
+    }
+    SERIAL_PORT_MONITOR.println("CAN init ok!");
   pinMode(A15,OUTPUT);
   pinMode(A14,OUTPUT);
   pinMode(A13,OUTPUT);
@@ -113,33 +128,24 @@ void* readSensorwithVal(int i, int val) {
 400000027: Motor
 -------------------------------------------------------*/
 void sendCANMessage(int i, void* muxOut) {
-  CAN.beginExtendedPacket(400000000+i);
   
   if(i < 15){ //isFloat
     float val = *(float *)muxOut;          //Dereference
 
-    char data[sizeof(val)];                //Create char array
+    unsigned char data[sizeof(val)];                //Create char array
     memcpy(data, &val, sizeof(val));       //Store bytes of val to array
-    for(int j = 0; j < sizeof(val); j++){  //Write bytes one by one to CAN
-      CAN.write(data[j]);
-    }
+    CAN.sendMsgBuf(400000000+i, 1, 2, data);
   }else if(i < 25){ //isInt
     int val = *(int *)muxOut;              //Dereference
 
-    char data[sizeof(val)];                //Create char array
+    unsigned char data[sizeof(val)];                //Create char array
     memcpy(data, &val, sizeof(val));       //Store bytes of val to array
-    for(int j = 0; j < sizeof(val); j++){  //Write bytes one by one to CAN
-      CAN.write(data[j]);
-    }
+    CAN.sendMsgBuf(400000015+i, 1, 4, data);
   }else{ //isInt??
     int val = *(int *)muxOut;              //Dereference
 
-    char data[sizeof(val)];                //Create char array
+    unsigned char data[sizeof(val)];                //Create char array
     memcpy(data, &val, sizeof(val));       //Store bytes of val to array
-    for(int j = 0; j < sizeof(val); j++){  //Write bytes one by one to CAN
-      CAN.write(data[j]);
-    }
+    CAN.sendMsgBuf(400000025+i, 1, 4, data);
   }
-
-  CAN.endPacket();
 }
