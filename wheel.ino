@@ -1,4 +1,18 @@
-#include <CAN.h>
+#include <Arduino.h>
+#include <SPI.h>
+
+//#define CAN_2515
+#define CAN_2518FD
+
+
+// Set SPI CS Pin according to your hardware
+const int SPI_CS_PIN = 9;
+const int CAN_INT_PIN = 2;
+
+#ifdef CAN_2518FD
+#include "mcp2518fd_can.h"
+mcp2518fd CAN(SPI_CS_PIN); // Set CS pin
+#endif
 
 #define TrimUpPin 1
 #define TrimDownPin 2
@@ -14,6 +28,16 @@ float throttleVal = 0;
 uint16_t i = 0;
 
 void setup() {
+  // put your setup code here, to run once:
+    SERIAL_PORT_MONITOR.begin(115200);
+    while(!Serial){};
+
+    while (CAN_OK != CAN.begin(CAN_500KBPS)) {             // init can bus : baudrate = 500k
+        SERIAL_PORT_MONITOR.println("CAN init fail, retry...");
+        delay(100);
+    }
+    SERIAL_PORT_MONITOR.println("CAN init ok!");
+  
   pinMode(TrimUpPin, INPUT);
   pinMode(TrimDownPin, INPUT);
   pinMode(GainUpPin, INPUT);
@@ -22,15 +46,6 @@ void setup() {
   pinMode(EncoderPin, INPUT);
   pinMode(ThrottlePin, INPUT);
   pinMode(LED1, OUTPUT);
-  
-  Serial.begin(115200);
-
-  CAN.begin(500E3);
-
-  if (!CAN.begin(500E3)) {
-    Serial.println("Starting CAN failed!");
-    while (1);
-  }
 }
 
 void loop() {
@@ -52,23 +67,16 @@ float readThrottle(){
 }
 
 void encodertoCAN(float val){
-  CAN.beginPacket(1999);
   char data[sizeof(val)];                //Create char array
   memcpy(data, &val, sizeof(val));       //Store bytes of val to array
-  for(int j = 0; j < sizeof(val); j++){  //Write bytes one by one to CAN
-    CAN.write(data[j]);
-  }
-  CAN.endPacket();
+  CAN.sendMsgBuf(1999, 0, sizeof(val), data);
 }
 
 void throttletoCAN(float val){
   CAN.beginPacket(1998);
   char data[sizeof(val)];                //Create char array
   memcpy(data, &val, sizeof(val));       //Store bytes of val to array
-  for(int j = 0; j < sizeof(val); j++){  //Write bytes one by one to CAN
-    CAN.write(data[j]);
-  }
-  CAN.endPacket();
+  CAN.sendMsgBuf(1998, 0, sizeof(val), data);
 }
 
 /*----------------------------------
@@ -76,11 +84,18 @@ IDs
 2000
 -----------------------------------*/
 void buttonstoCAN(){
-  CAN.beginPacket(2000);
-  CAN.write(analogRead(TrimUpPin));
-  CAN.write(analogRead(TrimDownPin));
-  CAN.write(analogRead(GainUpPin));
-  CAN.write(analogRead(GainDownPin));
-  CAN.write(analogRead(EStopPin));
-  CAN.endPacket();
+  boolean trimU = digitalRead(TrimUpPin);
+  boolean trimD = digitalRead(TrimDownPin);
+  boolean gainU = digitalRead(GainUpPin);
+  boolean gainD = digitalRead(GainDownPin);
+  boolean stop = analogRead(EStopPin);
+
+  char data[5];
+  data[0] = trimU;
+  data[1] = trimD;
+  data[2] = gainU;
+  data[3] = gainD;
+  data[4] = stop;
+
+  CAN.sendMsgBuf(2000, 0, 5, data);
 }
